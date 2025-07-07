@@ -8,6 +8,7 @@ import textwrap
 import re
 from transformers import BertForSequenceClassification, BertTokenizer
 import joblib
+import os
 
 # === Page config ===
 st.set_page_config(page_title="HopeBot Chatbot", layout="centered")
@@ -74,18 +75,16 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# === GPT-2 Fine-tuned ===
-from transformers import GPT2Tokenizer, GPT2LMHeadModel
-tokenizer = GPT2Tokenizer.from_pretrained("models/hopebot_exp_10")
-gpt2_model = GPT2LMHeadModel.from_pretrained("models/hopebot_exp_10")
+# Load GPT-2 model from Hugging Face Hub
+tokenizer = GPT2Tokenizer.from_pretrained("Lisarahaman13/hopebot-exp-10", use_auth_token=st.secrets["HF_TOKEN"])
+gpt2_model = GPT2LMHeadModel.from_pretrained("Lisarahaman13/hopebot-exp-10", use_auth_token=st.secrets["HF_TOKEN"])
 
-# === BERT Classifier ===
-from transformers import BertTokenizer, BertForSequenceClassification
-import joblib
+# Load BERT classifier model from Hugging Face Hub
+bert_tokenizer = BertTokenizer.from_pretrained("Lisarahaman13/bert-classifier", use_auth_token=st.secrets["HF_TOKEN"])
+bert_model = BertForSequenceClassification.from_pretrained("Lisarahaman13/bert-classifier", use_auth_token=st.secrets["HF_TOKEN"])
 
-bert_tokenizer = BertTokenizer.from_pretrained("models/bert_classifier")
-bert_model = BertForSequenceClassification.from_pretrained("models/bert_classifier")
-label_encoder = joblib.load("models/bert_classifier/bert_label_encoder.pkl")
+# Load label encoder (masih dari local file dalam Spaces)
+label_encoder = joblib.load("bert_label_encoder.pkl")
 
 def predict_label(text):
     inputs = bert_tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=64)
